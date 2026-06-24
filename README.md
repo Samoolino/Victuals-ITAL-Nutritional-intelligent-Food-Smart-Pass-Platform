@@ -1,252 +1,443 @@
-# VICTUALS — Smart Nutritional Food Plan Pass Platform
+# Victuals — The ITAL Nutritional Agent Marketplace
 
-VICTUALS is the next-stage evolution of the Smart Food Pass concept: a programmable, nutrition-aware food access platform that connects eligible beneficiaries, merchants, sponsors, and public institutions through a shared trust layer. The repository is structured as a monorepo for product cataloging, nutrition intelligence, wallet orchestration, settlement, compliance, and app experiences.
+Victuals is the enterprise evolution of a nutrition access platform into a Global Nutritional Intelligence Network. The platform connects users, market owners, subscription plan owners, plan subscribers, food manufacturers, governments, schools, humanitarian organizations, and ecosystem operators through a secure, auditable, and extensible digital infrastructure.
 
-## Audit summary
+The core intelligence layer is ITAL, a hierarchical multi-agent nutritional operating system designed to coordinate nutrition planning, product intelligence, commerce, economics, settlement, governance, and impact reporting.
 
-This repository has been audited against the current pull request context (PR #38) and the state of the main branch. The result is a strong foundation for a transition from the legacy Smart Food Pass scaffold to a VICTUALS platform, but the implementation remains in an early, partially scaffolded phase.
+## 1. Executive Summary
 
-### What is already present
-- A monorepo structure with `apps/`, `services/`, `packages/`, and `infra/`.
-- A Solidity-based contract package under `packages/contracts`.
-- A shared-types package under `packages/shared-types`.
-- Service scaffolds for registry, redemption, payment orchestration, analytics, compliance, auth, and notification.
-- Infrastructure directories for Docker, Kubernetes, Terraform, and observability.
-- Architecture and contract documentation under `docs/`.
+### Business Objective
+To enable programmable nutrition access that improves food choices, supports healthier outcomes, and creates measurable impact for individuals and institutions through a trusted marketplace and funding model.
 
-### What is still incomplete or placeholder
-- `apps/admin-console`, `apps/merchant-portal`, and `apps/beneficiary-dapp` are scaffolds rather than production-ready applications.
-- `apps/beneficiary-dapp/legacy-nextjs` should remain as a legacy reference, not the primary VICTUALS experience.
-- Service boundaries exist, but business logic, APIs, persistence, and operational workflows are not yet fully implemented.
-- The root README still reflected the earlier Smart Food Stamp language rather than the VICTUALS product thesis.
+### Core Value Proposition
+Victuals is not just a food pass or grocery marketplace. It is a nutrition intelligence and commerce platform that combines:
 
-### Recommended transition posture
-The repository should continue progressing in the order already defined by the upgrade plan:
-1. Terminology migration to VICTUALS.
-2. Architecture and domain documentation.
-3. Shared domain types and message schemas.
-4. Contract module expansion.
-5. Product registry and nutrition integrations.
-6. Wallet, QR redemption, and settlement services.
-7. App-level implementation and UX rollout.
+- user-centric nutritional planning
+- global food product registry intelligence
+- merchant and market-hub redemption workflows
+- subscription plan funding and plan-owner governance
+- tokenized access, allocation, and settlement controls
+- nutrition and ESG impact reporting
 
----
+### Target Audience
+- Users who need nutrition access and plan-aware purchasing
+- Market owners and market hubs who operate grocery inventory and redemption channels
+- Subscription plan owners and plan subscribers who fund nutrition programs
+- Platform administrators, compliance teams, and regulators
+- Developers and ecosystem partners integrating with the platform
 
-## Product thesis
+## 2. Product and Platform Vision
 
-VICTUALS is designed to make food access more intelligent, measurable, and impact-driven. It links the redemption of food benefits to nutrition outcomes, merchant participation, and accountable funding flows. The platform is intended to support:
-- sponsor or program-funded food access;
-- beneficiary eligibility and wallet management;
-- merchant onboarding and accreditation;
-- nutrition-aware product eligibility and recommendation logic;
-- transparent settlement and auditability;
-- ESG and nutritional impact reporting.
+Victuals operates as a market-of-markets platform where:
 
----
+- users receive nutrition-based entitlements and access
+- market owners sell and redeem eligible food products
+- plan owners and subscribers sponsor programs and allocate value
+- ITAL evaluates nutrition suitability and plan eligibility
+- smart contracts govern access, settlement, treasury, and redemption trust
+- reporting measures nutritional and economic outcomes
 
-## Functional requirements
+The platform is structured around a Global Food Product Registry Infrastructure, where every product becomes a searchable nutritional asset and each country can become a registry node.
 
-### 1. Identity, entitlement, and access
-- Register beneficiaries, merchants, sponsors, and administrators.
-- Maintain eligibility rules and policy-driven entitlements.
-- Support role-based access control and auditable identity changes.
-- Allow program administrators to create and update benefit rules.
+## 3. Role Model and Domain Vocabulary
 
-### 2. Benefit wallet and pass lifecycle
-- Issue and manage a digital food plan pass or wallet state.
-- Track plan balance, validity window, and policy constraints.
-- Support QR-based or wallet-based redemption workflows.
-- Support pass suspension, cancellation, and restoration.
+The repository uses the following normalized roles:
 
-### 3. Product registry and nutrition intelligence
-- Maintain a canonical product registry with product metadata, nutrition facts, and provenance.
-- Score food products against nutrition quality, healthiness, allergen, and suitability rules.
-- Support dietary preferences, restricted ingredients, and health goals.
-- Produce recommendation and eligibility outcomes that are explainable.
+- User: the recipient of nutrition access and plan entitlements
+- Market owner / market hub: operational owner of merchant inventory, redemption, and marketplace engagement
+- Subscription plan owner: an organization or sponsor funding plans and policy rules
+- Plan subscriber: a participant or organization enrolled under a subscription plan
+- Platform administrator: governance and operational operator
 
-### 4. Merchant onboarding and redemption
-- Onboard merchants and verify accreditation criteria.
-- Accept redemption requests from approved merchant channels.
-- Enforce policy checks for allowed products, benefit types, and redemption windows.
-- Record settlement and dispute events in an auditable format.
+These roles replace older terminology such as beneficiary, sponsor, donor, and merchant-only concepts.
 
-### 5. Settlement and funding flows
-- Orchestrate sponsor-to-merchant settlement.
-- Support ledger-based accounting and reconciliation.
-- Emit event logs for funding, redemption, settlement, and rollback operations.
-- Enable reporting for program finance and compliance stakeholders.
+## 4. Architecture Overview
 
-### 6. Reporting, analytics, and governance
-- Produce operational dashboards for program managers and administrators.
-- Generate nutrition and ESG impact reports.
-- Expose metrics for beneficiary outcomes, merchant participation, and fund efficiency.
-- Support regulator-safe audit trails and evidence export.
+Victuals is organized as a layered enterprise system:
 
----
+- Experience Layer: user portals, market-hub portals, plan-owner portals, admin, analytics, and registry administration surfaces
+- Application Services Layer: access, plan management, registry, nutrition intelligence, marketplace matching, settlement, reporting, analytics, compliance, identity, and notifications
+- Registry and Data Layer: global, regional, and national product registries with product, nutrition, certification, and merchant data
+- Trust and Settlement Layer: smart contracts for treasury, allocation, access, settlement, merchant trust, and governance
+- Operational Layer: deployment, observability, security, and governance automation
 
-## Non-functional requirements
-
-### Security and trust
-- Protect identity and transaction data using least-privilege access controls.
-- Ensure that contract-mediated state changes are auditable and tamper-evident.
-- Secure secrets, keys, and private configuration through managed secret stores.
-- Enforce signed approvals and role separation for privileged actions.
-
-### Privacy and data protection
-- Minimize personal data collection and retain only what is needed.
-- Separate identity data from transaction and nutrition decision data where possible.
-- Support consent-driven data handling and export/delete workflows.
-
-### Reliability and resilience
-- Design services to tolerate transient failures and recover gracefully.
-- Support idempotent redemption and settlement operations.
-- Provide health checks, retries, and operational alerts.
-
-### Performance and scalability
-- Support growing beneficiary and merchant volumes without major architecture churn.
-- Keep user-facing flows responsive for mobile and desktop experiences.
-- Ensure asynchronous workflows can scale independently.
-
-### Interoperability and maintainability
-- Use clear shared types and canonical schemas across services and applications.
-- Preserve compatibility with external data providers, payment rails, and verification services.
-- Keep domain boundaries explicit to avoid unnecessary coupling.
-
-### Accessibility and inclusion
-- Support mobile-first interactions and inclusive design.
-- Ensure the experience remains usable for underserved and low-connectivity contexts.
-- Expose plain-language explanations for nutrition decisions and benefit outcomes.
-
-### Compliance and governance
-- Support policy versioning, internal review, and audit evidence generation.
-- Prepare for regulatory oversight, subsidy program requirements, and ethical AI review where applicable.
-- Maintain a record of schema changes, contract upgrades, and operational controls.
-
----
-
-## Architecture and system design
-
-The platform is organized as a layered system so that user experiences, business services, trust infrastructure, and impact reporting can evolve independently.
-
-### Layered architecture
-
-- L-1: Human and ecosystem layer
-  - Beneficiaries, merchants, sponsors, program administrators, and regulators.
-  - Real-world behaviors: food purchasing, eligibility verification, redemption, and impact observation.
-
-- L-2: Experience and interaction layer
-  - `apps/beneficiary-dapp` for beneficiary experience.
-  - `apps/merchant-portal` for merchant operations.
-  - `apps/admin-console` for program administration.
-  - Notification and communication surfaces.
-
-- L-3: Application services layer
-  - `services/registry-service` for product and merchant registration.
-  - `services/redemption-service` for redemption processing.
-  - `services/payment-orchestrator` for settlement orchestration.
-  - `services/compliance-service` for policy and evidence evaluation.
-  - `services/auth-service` and `services/notification-service` for identity and communication.
-
-- L-4: Domain modeling and shared contracts layer
-  - `packages/shared-types` for common domain models.
-  - `packages/sdk` for client integration.
-  - `packages/contract-abis` and `docs/contracts` for contract interface definitions.
-
-- L-5: Data, intelligence, and analytics layer
-  - Product catalog, nutrition scoring models, eligibility reasoners, and analytics pipelines.
-  - Derives recommendation, eligibility, and impact outputs from structured and external data sources.
-
-- L-6: Trust and transaction layer
-  - `packages/contracts` and Solidity modules for policy, registry, redemption, settlement, and access control.
-  - Provides immutable state, event logging, and auditable business transitions.
-
-- L-7: Platform operations layer
-  - `infra/docker`, `infra/kubernetes`, `infra/terraform`, and `infra/observability`.
-  - CI/CD, environment provisioning, monitoring, logging, secret handling, and deployment automation.
-
-- L-8: Impact, governance, and reporting layer
-  - ESG dashboards, nutritional outcome reporting, program audits, and institutional reporting.
-  - Supports cross-program impact evaluation and public accountability.
-
-### Runtime flow
-1. A beneficiary interacts through the app layer.
-2. The application services evaluate eligibility and plan state.
-3. Product and nutrition rules are checked against shared domain models and contract state.
-4. Redemption and settlement events are committed through the trust layer.
-5. Operational telemetry and impact metrics are emitted for analytics and governance.
-
----
-
-## Nutritional impact and impactfulness design
-
-VICTUALS is explicitly designed not just as a food pass but as a nutrition-impact instrument. The platform should encourage healthier purchasing patterns and produce evidence that can be shared with sponsors, program managers, and ESG stakeholders.
-
-### Nutrition-focused design principles
-- Prioritize nutrient-dense products over ultra-processed, low-value options where the policy permits.
-- Support explainable recommendations rather than opaque scoring.
-- Make nutritional eligibility and product suitability transparent to beneficiaries and admins.
-- Connect food redemption to measurable health, equity, and sustainability outcomes.
-
-### Reportable ESG nutritional metrics
-
-| Metric | What it measures | Suggested reporting cadence |
-| --- | --- | --- |
-| Healthy Basket Score | Share of redeemed basket that meets nutritional quality thresholds | Monthly |
-| Nutrient Density Index | Average nutrient density of redeemed products | Monthly |
-| Protein and Fiber Adequacy Rate | Percentage of households or users meeting minimum protein/fiber thresholds | Quarterly |
-| Sugar / Sodium Compliance Rate | Share of redeemed products within defined thresholds | Monthly |
-| Fruit and Vegetable Serving Ratio | Relative contribution of fruit/vegetable intake vs total basket | Monthly |
-| Food Waste Avoided | Estimated reduction in food waste from better purchasing or product matching | Quarterly |
-| Emissions Intensity | Estimated CO2e impact per household or per redeemed basket | Quarterly |
-| Local / Smallholder Procurement Share | Portion of spend connected to local or responsible suppliers | Quarterly |
-| Equity Coverage Index | Reach of nutritional support across underserved segments | Quarterly |
-| Program Impact Confidence | Composite confidence score based on data completeness and auditability | Quarterly |
-
-These metrics should be generated by the analytics and reporting layer and exposed as role-based dashboards and downloadable reports.
-
----
-
-## Repository structure
+## 5. Repository Structure
 
 ```text
-apps/                 user-facing experiences
-services/             domain services and orchestration
-packages/             shared types, contracts, SDK, tooling
-infra/                deployment, observability, infrastructure as code
-docs/                 architecture, contracts, compliance, runbooks
+victuals-platform/
+
+├── apps/
+│   ├── user-dapp/
+│   ├── market-hub-portal/
+│   ├── plan-owner-portal/
+│   ├── platform-admin/
+│   ├── analytics-portal/
+│   └── registry-admin/
+├── services/
+│   ├── user-access-service/
+│   ├── plan-management-service/
+│   ├── global-registry-service/
+│   ├── nutrition-intelligence-service/
+│   ├── marketplace-matching-service/
+│   ├── merchant-network-service/
+│   ├── settlement-service/
+│   ├── wallet-service/
+│   ├── reporting-service/
+│   ├── compliance-service/
+│   ├── auth-service/
+│   ├── notification-service/
+│   └── payment-orchestrator/
+├── global-registry/
+│   ├── global/
+│   ├── regional/
+│   └── national/
+├── token-economy/
+│   ├── treasury/
+│   ├── reserve-assets/
+│   ├── allocation-engine/
+│   ├── expiry-engine/
+│   └── burn-engine/
+├── wallet-system/
+│   ├── biometric-wallet/
+│   ├── merchant-wallet/
+│   ├── plan-owner-wallet/
+│   └── treasury-wallet/
+├── marketplace/
+│   ├── merchant-network/
+│   ├── inventory-matching/
+│   ├── product-eligibility/
+│   └── nutrition-commerce/
+├── integrations/
+│   ├── product-registry-apis/
+│   ├── payments/
+│   ├── blockchain/
+│   └── merchant-apis/
+├── packages/
+│   ├── contracts/
+│   ├── shared-types/
+│   ├── sdk/
+│   └── contract-abis/
+├── infra/
+│   ├── docker/
+│   ├── kubernetes/
+│   ├── terraform/
+│   └── observability/
+└── docs/
+    ├── architecture/
+    ├── api/
+    ├── governance/
+    ├── nutrition/
+    └── contracts/
 ```
 
----
+## 6. ITAL: Nutri Agent Master Structure
 
-## Build and execution order
+ITAL is designed as a hierarchical multi-agent nutritional operating system.
 
-The repository should be built in a staged order to preserve logical dependencies:
-1. Shared packages and type definitions.
-2. Contracts and trust layer modules.
-3. SDK and interface artifacts.
-4. Core services.
-5. Admin and partner portals.
-6. Beneficiary-facing app experiences.
+```text
+ITAL (Nutri Agent)
 
-Typical developer commands:
-
-```bash
-pnpm install
-pnpm dev
-pnpm build
-pnpm test
-pnpm contracts:test
+├── Orchestrator Agent
+├── Human Nutrition Layer
+├── Product Intelligence Layer
+├── Commerce Layer
+├── Plan Management Layer
+├── Registry Layer
+├── Economic Layer
+├── Settlement Layer
+├── Population Nutrition Layer
+├── Learning Layer
+└── Governance Layer
 ```
 
----
+### Orchestrator Agent
+The chief nutrition executive.
 
-## Implementation status and next milestones
+Responsibilities:
+- receive user requests
+- determine which specialized agents are required
+- coordinate execution
+- aggregate results
+- resolve conflicts
+- issue the final recommendation
 
-Current focus should be:
-- finalize VICTUALS terminology and domain vocabulary;
-- complete shared domain types and schema contracts;
-- implement the product registry and nutrition intelligence service;
-- wire the wallet and redemption lifecycle into the trust and service layers;
-- implement reporting for nutritional and ESG outcomes.
+Example:
+- user requests nutrition guidance within a budget
+- orchestrator invokes diagnostic, disease, budget, meal planning, registry, and commerce agents
+- results are merged into a single recommendation
 
-This repository is now positioned as the foundation for a nutrition-aware, auditable, and measurable food access platform rather than only a Smart Food Pass prototype.
+## 7. ITAL Agent Hierarchy
+
+### 7.1 Human Nutrition Layer
+
+#### Diagnostic Agent
+Collects anthropometric and lifestyle data such as:
+- age
+- gender
+- weight
+- height
+- body composition
+- activity level
+- medical conditions
+- biomarkers
+
+Outputs a nutrition baseline profile.
+
+#### Nutritional Specialist Agent
+Converts baseline data into nutrient targets based on:
+- RDA
+- RDI
+- DRI
+- WHO guidance
+- national dietary guidance
+- sports and clinical nutrition standards
+
+#### Disease and Clinical Agent
+Maps health conditions to nutritional constraints for:
+- diabetes
+- hypertension
+- obesity
+- kidney disease
+- pregnancy
+- malnutrition
+- anemia
+
+#### Biochemical Pathway Agent
+Maps nutrition inputs into physiological pathways such as:
+- glucose and fructose metabolism
+- lactose handling
+- protein and lipid processing
+- glycogen use
+- amino acid utilization
+- ATP production
+- hormonal response
+
+This enables recommendations based on metabolic pathways rather than only calories.
+
+### 7.2 Product Intelligence Layer
+
+#### Product Registry Agent
+Searches global, regional, national, and merchant inventory sources to retrieve:
+- ingredients
+- nutrition facts
+- certifications
+- allergens
+- origin
+- manufacturer
+
+#### Product Composition Agent
+Breaks products down into their core nutritional components, such as:
+- protein sources
+- fat sources
+- carbohydrate sources
+- fiber sources
+- vitamin sources
+- mineral sources
+
+#### Nutrient Translation Agent
+Converts products into standardized nutrition metrics, such as:
+- protein grams
+- calories
+- fiber
+- iron
+- fats
+- micronutrients
+
+### 7.3 Commerce Layer
+
+#### Grocery Agent
+Finds available products, nearby or online merchants, and delivery or redemption options.
+
+#### Budget Agent
+Calculates nutrition value per cost unit, including:
+- cost per protein gram
+- cost per calorie
+- cost per iron unit
+- cost per fiber unit
+
+It produces a nutrition ROI perspective for users and plan owners.
+
+#### Merchant Agent
+Coordinates merchant inventory, pricing, settlement status, and reporting.
+
+### 7.4 Plan Management Layer
+
+#### Subscription Plan Agent
+Designs plans such as:
+- athlete plans
+- student plans
+- pregnancy plans
+- military plans
+- school feeding plans
+- humanitarian plans
+
+#### Token Utility Agent
+Determines which products, merchants, and wallets are eligible for spending, blocking, or allocation.
+
+#### Allocation Agent
+Translates funding into token releases, spending limits, and expiry rules based on:
+- plan size
+- plan duration
+- enrollment count
+- funding amount
+- target nutrition outcomes
+
+### 7.5 Economic Layer
+
+#### Nutritional Economics Agent
+Calculates cost per nutrient, cost per meal, cost per household, and cost per program.
+
+#### Pricing Strategy Agent
+Supports plan owners and subscribers in answering:
+- how much funding is required
+- how many users can be served
+- how many weeks can be sustained
+
+#### Treasury Agent
+Monitors reserve assets, locked supply, circulating supply, burn rates, and settlement demand.
+
+### 7.6 Population Nutrition Layer
+
+#### Population Agent
+Tracks nutrition delivery across regions, communities, schools, cities, and countries.
+
+#### Humanitarian Agent
+Designs emergency, relief, and intervention programs for humanitarian use cases.
+
+### 7.7 Learning Layer
+
+#### User Feedback Agent
+Collects ratings, purchase patterns, meal completion, skipped foods, and consumption behavior to improve recommendations.
+
+#### AI Critic Agent
+Checks recommendations for nutrition compliance, medical safety, plan compliance, and policy constraints.
+
+#### Reinforcement Learning Agent
+Improves meal recommendations, product rankings, merchant rankings, and plan recommendations using reward signals.
+
+### 7.8 Governance Layer
+
+#### Nutrition Governance Agent
+Applies WHO guidance, national standards, food laws, religious dietary standards, and allergen constraints.
+
+#### Compliance Agent
+Validates GS1 and registry standards, labeling rules, import rules, and country-specific regulatory conditions.
+
+## 8. User-to-Settlement Flow
+
+```text
+User
+↓
+Wallet
+↓
+ITAL Nutri Agent
+↓
+Plan Agent
+↓
+Registry Agent
+↓
+Eligible Products
+↓
+Market Hub / Marketplace
+↓
+Purchase
+↓
+Smart Contract
+↓
+Settlement
+↓
+Reporting
+↓
+Learning Feedback
+```
+
+## 9. Smart Contract and Trust Layer
+
+The trust layer is designed around two primary contract domains:
+
+### Treasury and Token Layer
+Responsible for:
+- mint and burn
+- allocation
+- lock and unlock
+- treasury reserve handling
+- merchant settlement
+- expiry and burn mechanics
+
+### Access and Registry Layer
+Responsible for:
+- plan creation
+- user entitlement and wallet access
+- product eligibility
+- merchant and market-hub authorization
+- access verification
+- reporting and settlement evidence
+
+This supports stable-asset conversion, fiat settlement hooks, merchant redemption, treasury freeze/hold logic, and investor-governance confidence where required.
+
+## 10. Technical Stack
+
+### Smart Contracts
+- Solidity
+- Foundry and Hardhat-compatible tooling
+
+### Application Layer
+- TypeScript-first architecture
+- shared SDK and shared domain models
+- web applications for user, market-hub, plan-owner, admin, and analytics experiences
+
+### Integrations
+- product registry APIs
+- payment and stable-asset providers
+- blockchain data and event indexing services
+- merchant and marketplace APIs
+
+## 11. Development and Delivery Strategy
+
+### Development Lifecycle
+1. define shared domain schemas and contracts
+2. implement registry and intelligence services
+3. wire wallet and access services
+4. connect marketplace, plan, and settlement flows
+5. deliver reporting and governance workflows
+
+### Testing Strategy
+- unit tests
+- contract and integration tests
+- end-to-end testing across user, market-hub, and plan-owner journeys
+
+### Security and Governance
+- auditable state transitions
+- role separation and signed approvals
+- wallet-safe authentication boundaries
+- secret management through configuration and environment controls
+
+## 12. Out of Scope
+
+For initial architecture and repository foundation, the following remain out of scope unless explicitly introduced later:
+
+- full consumer-facing fiat on-ramp orchestration
+- centralized custody for user funds
+- legacy migration from unrelated systems
+- regulatory UI enforcement beyond governance and reporting hooks
+
+## 13. Governance and Contribution
+
+The repository should evolve through architecture decision records, shared schemas, documented service boundaries, and auditable contract upgrades.
+
+Contribution principles:
+- keep domain boundaries explicit
+- preserve shared types and contract compatibility
+- maintain auditable flows across access, commerce, and settlement
+- document governance changes and contract upgrades
+- avoid hardcoded secrets and insecure configuration
+
+## 14. Implementation Status
+
+The repository now reflects:
+- a restructured enterprise monorepo for Victuals
+- a merged architecture-first README for the platform and ITAL Nutri Agent
+- a multi-agent operating-system model for nutrition intelligence
+- explicit support for subscription plan owners and plan subscribers
+
+Victuals is now positioned as the enterprise foundation for the ITAL Nutritional Agent Marketplace and the Global Nutritional Intelligence Network.
