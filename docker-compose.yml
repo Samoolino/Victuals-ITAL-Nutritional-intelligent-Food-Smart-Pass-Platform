@@ -1,0 +1,344 @@
+version: '3.9'
+
+services:
+  # =========================================================================
+  # PostgreSQL Database
+  # =========================================================================
+  postgres:
+    image: postgres:16-alpine
+    container_name: victuals-postgres
+    environment:
+      POSTGRES_USER: victuals
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-victuals-dev}
+      POSTGRES_DB: victuals
+      POSTGRES_INITDB_ARGS: --encoding=UTF8
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./infra/docker/postgres-init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U victuals"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - victuals-network
+
+  # =========================================================================
+  # Redis Cache
+  # =========================================================================
+  redis:
+    image: redis:7-alpine
+    container_name: victuals-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - victuals-network
+
+  # =========================================================================
+  # Local Blockchain (Ganache or Anvil)
+  # =========================================================================
+  blockchain:
+    image: trufflesuite/ganache:latest
+    container_name: victuals-blockchain
+    ports:
+      - "8545:8545"
+    environment:
+      GANACHE_MNEMONIC: ${GANACHE_MNEMONIC:-test test test test test test test test test test test junk}
+      GANACHE_HOST: 0.0.0.0
+      GANACHE_PORT: 8545
+      GANACHE_NETWORK_ID: 1337
+    networks:
+      - victuals-network
+
+  # =========================================================================
+  # Auth Service
+  # =========================================================================
+  auth-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: auth-service
+    container_name: victuals-auth-service
+    environment:
+      NODE_ENV: ${NODE_ENV:-development}
+      DATABASE_URL: postgresql://victuals:${POSTGRES_PASSWORD:-victuals-dev}@postgres:5432/victuals
+      REDIS_URL: redis://redis:6379
+      JWT_SECRET: ${JWT_SECRET:-dev-secret-key-change-in-production}
+      JWT_EXPIRY: 3600
+    ports:
+      - "3001:3001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - victuals-network
+
+  # =========================================================================
+  # Registry Service
+  # =========================================================================
+  registry-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: registry-service
+    container_name: victuals-registry-service
+    environment:
+      NODE_ENV: ${NODE_ENV:-development}
+      DATABASE_URL: postgresql://victuals:${POSTGRES_PASSWORD:-victuals-dev}@postgres:5432/victuals
+      REDIS_URL: redis://redis:6379
+      RPC_URL: http://blockchain:8545
+    ports:
+      - "3002:3002"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      blockchain:
+        condition: service_started
+      auth-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3002/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - victuals-network
+
+  # =========================================================================
+  # Redemption Service
+  # =========================================================================
+  redemption-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: redemption-service
+    container_name: victuals-redemption-service
+    environment:
+      NODE_ENV: ${NODE_ENV:-development}
+      DATABASE_URL: postgresql://victuals:${POSTGRES_PASSWORD:-victuals-dev}@postgres:5432/victuals
+      REDIS_URL: redis://redis:6379
+      RPC_URL: http://blockchain:8545
+    ports:
+      - "3003:3003"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      auth-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3003/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - victuals-network
+
+  # =========================================================================
+  # Payment Orchestrator
+  # =========================================================================
+  payment-orchestrator:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: payment-orchestrator
+    container_name: victuals-payment-orchestrator
+    environment:
+      NODE_ENV: ${NODE_ENV:-development}
+      DATABASE_URL: postgresql://victuals:${POSTGRES_PASSWORD:-victuals-dev}@postgres:5432/victuals
+      REDIS_URL: redis://redis:6379
+      RPC_URL: http://blockchain:8545
+    ports:
+      - "3004:3004"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      auth-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3004/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - victuals-network
+
+  # =========================================================================
+  # Compliance Service
+  # =========================================================================
+  compliance-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: compliance-service
+    container_name: victuals-compliance-service
+    environment:
+      NODE_ENV: ${NODE_ENV:-development}
+      DATABASE_URL: postgresql://victuals:${POSTGRES_PASSWORD:-victuals-dev}@postgres:5432/victuals
+      REDIS_URL: redis://redis:6379
+    ports:
+      - "3005:3005"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      auth-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3005/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - victuals-network
+
+  # =========================================================================
+  # Analytics Service
+  # =========================================================================
+  analytics-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: analytics-service
+    container_name: victuals-analytics-service
+    environment:
+      NODE_ENV: ${NODE_ENV:-development}
+      DATABASE_URL: postgresql://victuals:${POSTGRES_PASSWORD:-victuals-dev}@postgres:5432/victuals
+      REDIS_URL: redis://redis:6379
+    ports:
+      - "3006:3006"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3006/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - victuals-network
+
+  # =========================================================================
+  # Notification Service
+  # =========================================================================
+  notification-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: notification-service
+    container_name: victuals-notification-service
+    environment:
+      NODE_ENV: ${NODE_ENV:-development}
+      REDIS_URL: redis://redis:6379
+    ports:
+      - "3007:3007"
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3007/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - victuals-network
+
+  # =========================================================================
+  # Beneficiary DApp (Next.js)
+  # =========================================================================
+  beneficiary-dapp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: beneficiary-dapp
+    container_name: victuals-beneficiary-dapp
+    environment:
+      NODE_ENV: ${NODE_ENV:-development}
+      NEXT_PUBLIC_API_URL: http://localhost:3000
+      NEXT_PUBLIC_CHAIN_ID: 1337
+      NEXT_PUBLIC_RPC_URL: http://localhost:8545
+    ports:
+      - "3008:3008"
+    depends_on:
+      - auth-service
+      - registry-service
+    networks:
+      - victuals-network
+
+  # =========================================================================
+  # Merchant Portal (Next.js)
+  # =========================================================================
+  merchant-portal:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: merchant-portal
+    container_name: victuals-merchant-portal
+    environment:
+      NODE_ENV: ${NODE_ENV:-development}
+      NEXT_PUBLIC_API_URL: http://localhost:3000
+      NEXT_PUBLIC_CHAIN_ID: 1337
+      NEXT_PUBLIC_RPC_URL: http://localhost:8545
+    ports:
+      - "3009:3009"
+    depends_on:
+      - auth-service
+      - registry-service
+    networks:
+      - victuals-network
+
+  # =========================================================================
+  # Admin Console (Next.js)
+  # =========================================================================
+  admin-console:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: admin-console
+    container_name: victuals-admin-console
+    environment:
+      NODE_ENV: ${NODE_ENV:-development}
+      NEXT_PUBLIC_API_URL: http://localhost:3000
+      NEXT_PUBLIC_CHAIN_ID: 1337
+      NEXT_PUBLIC_RPC_URL: http://localhost:8545
+    ports:
+      - "3010:3010"
+    depends_on:
+      - auth-service
+      - registry-service
+    networks:
+      - victuals-network
+
+volumes:
+  postgres-data:
+    driver: local
+  redis-data:
+    driver: local
+
+networks:
+  victuals-network:
+    driver: bridge
